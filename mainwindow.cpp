@@ -16,12 +16,20 @@ MainWindow::MainWindow(QWidget *parent)
 
     mainTimer = new QTimer(this);
     connect(mainTimer,SIGNAL(timeout()),this,SLOT(onMainTimer()));
+    SYSTEM_INFO si;
+    GetSystemInfo(&si);
+    num_of_cpu = si.dwNumberOfProcessors;
+    this->ui->plainTextEdit->appendPlainText(QString::number(num_of_cpu));
+//    ppi = new std::vector<PROCESSOR_POWER_INFORMATION>(num_of_cpu);
+    ppi = new PROCESSOR_POWER_INFORMATION[num_of_cpu];
+    ppi_size = sizeof(PROCESSOR_POWER_INFORMATION) * num_of_cpu;
 }
 
 MainWindow::~MainWindow()
 {
     mainTimer->stop();
     delete mainTimer;
+    delete ppi;
 
     delete ui;
 }
@@ -44,4 +52,15 @@ void MainWindow::on_buttonStart_released()
 void MainWindow::on_stopButton_released()
 {
     mainTimer->stop();
+}
+
+void MainWindow::on_pushButton_released()
+{
+//    CallNtPowerInformation(POWER_INFORMATION_LEVEL::ProcessorInformation, NULL, 0, ppi, ppi_size);
+    CallNtPowerInformation(POWER_INFORMATION_LEVEL::ProcessorInformation, NULL, 0, &ppi[0], ppi_size);
+    for(int i=0; i>num_of_cpu; i++)
+    {
+//        this->ui->plainTextEdit->appendPlainText(QString::number(ppi->at(i).CurrentMhz));
+        this->ui->plainTextEdit->appendPlainText(QString::number(ppi[i].CurrentMhz));
+    }
 }
