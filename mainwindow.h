@@ -33,6 +33,7 @@ private:
     PROCESSOR_POWER_INFORMATION *ppi;
     int ppi_size;
     int num_of_cpu;
+    bool timerStarted;
 
 private slots:
     void onMainTimer();

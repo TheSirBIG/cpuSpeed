@@ -14,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    timerStarted = false;
     mainTimer = new QTimer(this);
     connect(mainTimer,SIGNAL(timeout()),this,SLOT(onMainTimer()));
     SYSTEM_INFO si;
@@ -40,18 +41,34 @@ void MainWindow::onMainTimer()
     //update timer
     this->ui->buttonStart->setText(QString::number(qq));
     qq++;
+
+    QString qstr = "";
+    CallNtPowerInformation(POWER_INFORMATION_LEVEL::ProcessorInformation, NULL, 0, &ppi[0], ppi_size);
+//        this->ui->plainTextEdit->appendPlainText(QString::number(ppi->at(i).CurrentMhz));
+    for(int i=0; i<num_of_cpu; i++)
+    {
+        qstr += QString::number(ppi[i].CurrentMhz);
+        qstr += "\n";
+    }
+//    this->ui->plainTextEdit->setPlainText(QString::number(ppi[0].CurrentMhz));
+    this->ui->plainTextEdit->setPlainText(qstr);
 }
 
 
 void MainWindow::on_buttonStart_released()
 {
-    mainTimer->setInterval(500);
-    mainTimer->start();
+    if(!timerStarted)
+    {
+        timerStarted = true;
+        mainTimer->setInterval(500);
+        mainTimer->start();
+    }
 }
 
 void MainWindow::on_stopButton_released()
 {
     mainTimer->stop();
+    timerStarted = false;
 }
 
 void MainWindow::on_pushButton_released()
@@ -61,6 +78,6 @@ void MainWindow::on_pushButton_released()
     for(int i=0; i>num_of_cpu; i++)
     {
 //        this->ui->plainTextEdit->appendPlainText(QString::number(ppi->at(i).CurrentMhz));
-        this->ui->plainTextEdit->appendPlainText(QString::number(ppi[i].CurrentMhz));
+        this->ui->plainTextEdit->setPlainText(QString::number(ppi[i].CurrentMhz));
     }
 }
